@@ -1,5 +1,6 @@
 import React from "react";
 import createOscillator from "./createOscillator";
+import SineWave from "./SineWave";
 import "./index.css";
 
 class Tone extends React.PureComponent {
@@ -75,6 +76,13 @@ class App extends React.Component {
             isPlaying={this.state.isPlaying}
             pitch={this.state.pitch}
             volume={this.state.volume}
+          />
+          <SineWave
+            width="400px"
+            height="400px"
+            amplitude={this.state.volume}
+            frequency={this.state.pitch}
+            draw={this.state.isPlaying}
           />
         </div>
         <div className="label pitch">◀︎ Pitch ▶︎</div>
