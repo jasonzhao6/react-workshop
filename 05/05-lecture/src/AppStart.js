@@ -15,7 +15,7 @@ const getHeaderStyle = y => {
   };
 };
 
-class App extends React.Component {
+class ScrollY extends React.Component {
   state = { y: 0 };
 
   handleWindowScroll = () => {
@@ -32,10 +32,17 @@ class App extends React.Component {
   }
 
   render() {
-    const { y } = this.state;
+    return this.props.children(this.state.y);
+  }
+}
+
+class App extends React.Component {
+  render() {
     return (
       <div className="app">
-        <h1 style={getHeaderStyle(y)}>Scroll down!</h1>
+        <ScrollY>
+          {y => <h1 style={getHeaderStyle(y)}>Scroll down!</h1>}
+        </ScrollY>
       </div>
     );
   }
