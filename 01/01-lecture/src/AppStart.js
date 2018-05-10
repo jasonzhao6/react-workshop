@@ -2,13 +2,7 @@ import React from "react";
 import createOscillator from "./createOscillator";
 import "./index.css";
 
-class App extends React.Component {
-  state = {
-    isPlaying: false,
-    volume: 0.5,
-    pitch: 0.5
-  }
-
+class Tone extends React.PureComponent {
   oscillator = createOscillator();
 
   componentDidMount() {
@@ -20,7 +14,7 @@ class App extends React.Component {
   }
 
   doImperativeStuff() {
-    let { isPlaying, pitch, volume } = this.state;
+    let { isPlaying, pitch, volume } = this.props;
     if (isPlaying) {
       this.oscillator.play();
     } else {
@@ -28,6 +22,18 @@ class App extends React.Component {
     }
     this.oscillator.setPitchBend(pitch);
     this.oscillator.setVolume(volume);
+  }
+
+  render() {
+    return null;
+  }
+}
+
+class App extends React.Component {
+  state = {
+    isPlaying: false,
+    volume: 0.5,
+    pitch: 0.5
   }
 
   play = () => {
@@ -54,7 +60,23 @@ class App extends React.Component {
           onMouseEnter={this.play}
           onMouseLeave={this.stop}
           onMouseMove={this.changeTone}
-        />
+        >
+          <Tone
+            isPlaying={this.state.isPlaying}
+            pitch={this.state.pitch / 2}
+            volume={this.state.volume}
+          />
+          <Tone
+            isPlaying={this.state.isPlaying}
+            pitch={this.state.pitch * 2.5}
+            volume={this.state.volume}
+          />
+          <Tone
+            isPlaying={this.state.isPlaying}
+            pitch={this.state.pitch}
+            volume={this.state.volume}
+          />
+        </div>
         <div className="label pitch">◀︎ Pitch ▶︎</div>
         <div className="label volume">◀︎ Volume ▶︎</div>
       </div>
