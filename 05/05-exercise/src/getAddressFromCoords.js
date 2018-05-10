@@ -6,6 +6,7 @@ const getAddressFromCoords = (latitude, longitude) => {
   return fetch(url)
     .then(res => res.json())
     .then(json => {
+      if (!json.results[0]) return 'API not available.';
       return json.results[0].formatted_address;
     });
 };
