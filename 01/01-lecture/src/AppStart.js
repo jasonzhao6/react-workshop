@@ -6,23 +6,32 @@ import "./index.css";
 class Tone extends React.PureComponent {
   oscillator = createOscillator();
 
-  componentDidMount() {
-    this.doImperativeStuff();
+  componentDidMount(prevProps) {
+    this.doImperativeStuff(prevProps);
   }
 
-  componentDidUpdate() {
-    this.doImperativeStuff();
+  componentDidUpdate(prevProps) {
+    this.doImperativeStuff(prevProps);
   }
 
-  doImperativeStuff() {
+  doImperativeStuff(prevProps) {
+    if (!prevProps) return;
+
     let { isPlaying, pitch, volume } = this.props;
-    if (isPlaying) {
+
+    if (!prevProps.isPlaying && isPlaying) {
       this.oscillator.play();
-    } else {
+    } else if (prevProps.isPlaying && !isPlaying) {
       this.oscillator.stop();
     }
-    this.oscillator.setPitchBend(pitch);
-    this.oscillator.setVolume(volume);
+
+    if (pitch !== prevProps.pitch) {
+      this.oscillator.setPitchBend(pitch);
+    }
+
+    if (volume !== prevProps.volume) {
+      this.oscillator.setVolume(volume);
+    }
   }
 
   render() {
