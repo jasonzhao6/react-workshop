@@ -8,25 +8,45 @@ import React from "react";
 import MenuIcon from "react-icons/lib/md/menu";
 import { set, get, subscribe } from "./local-storage";
 
-class App extends React.Component {
-  state = {
-    sidebarIsOpen: get("sidebarIsOpen", true)
-  };
+const capitalize = str => `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
 
-  componentDidMount() {
-    this.unsubscribe = subscribe(() => {
-      this.setState({
-        sidebarIsOpen: get("sidebarIsOpen")
+const withStorage = (key, defaultValue) => Comp => {
+  class WithStorage extends React.Component {
+    state = {
+      [key]: get(key, defaultValue)
+    };
+
+    componentDidMount() {
+      this.unsubscribe = subscribe(() => {
+        this.setState({
+          [key]: get(key)
+        });
       });
-    });
+    }
+
+    componentWillUnmount() {
+      this.unsubscribe();
+    }
+
+    render() {
+      return (
+        <Comp
+          { ...this.props }
+          { ...this.state }
+          { ...({ [`set${capitalize(key)}`]: value => set(key, value) }) }
+        />
+      );
+    }
   }
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
+  WithStorage.displayName = `WithStorage(${(Comp.displayName || Comp.name)})`;
 
+  return WithStorage;
+}
+
+class App extends React.Component {
   render() {
-    const { sidebarIsOpen } = this.state;
+    const { sidebarIsOpen, setSidebarIsOpen } = this.props;
     return (
       <div className="app">
         <header>
@@ -34,7 +54,7 @@ class App extends React.Component {
             className="sidebar-toggle"
             title="Toggle menu"
             onClick={() => {
-              set("sidebarIsOpen", !sidebarIsOpen);
+              setSidebarIsOpen(!sidebarIsOpen);
             }}
           >
             <MenuIcon />
@@ -50,4 +70,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withStorage("sidebarIsOpen", false)(App);
