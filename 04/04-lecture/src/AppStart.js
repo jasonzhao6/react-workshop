@@ -4,26 +4,31 @@ import createMediaListener from "./createMediaListener";
 import { Galaxy, Trees, Earth } from "./screens";
 import { CSSTransitionGroup } from "react-transition-group";
 
-const media = createMediaListener({
-  big: "(min-width : 1000px)",
-  tiny: "(max-width: 600px)"
-});
+const withMedia = queries => Comp => {
+  const media = createMediaListener(queries);
+
+  return class WithMedia extends React.Component {
+    state = {
+      media: media.getState()
+    };
+
+    componentDidMount() {
+      media.listen(media => this.setState({ media }));
+    }
+
+    componentWillUnmount() {
+      media.dispose();
+    }
+
+    render() {
+      return <Comp media={this.state.media} />
+    }
+  }
+}
 
 class App extends React.Component {
-  state = {
-    media: media.getState()
-  };
-
-  componentDidMount() {
-    media.listen(media => this.setState({ media }));
-  }
-
-  componentWillUnmount() {
-    media.dispose();
-  }
-
   render() {
-    const { media } = this.state;
+    const { media } = this.props;
 
     return (
       <CSSTransitionGroup
@@ -43,4 +48,9 @@ class App extends React.Component {
   }
 }
 
-export default App;
+const AppWithMedia = withMedia({
+  big: "(min-width : 1000px)",
+  tiny: "(max-width: 600px)"
+})(App)
+
+export default AppWithMedia;
