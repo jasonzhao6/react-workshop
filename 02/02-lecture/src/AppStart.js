@@ -16,24 +16,37 @@ class Tabs extends Component {
   };
 
   render() {
-    const { data } = this.props;
+    const { data, disabledTabs } = this.props;
+
+    const tabs = (
+      <div key="tabs" className="tabs">
+        {data.map((tab, index) => {
+          const isActive = index === this.state.activeIndex;
+          const isDisabled = disabledTabs.indexOf(index) >=0 ;
+          return (
+            <div
+              key={index}
+              className={
+                isDisabled ? "tab disabled" : (isActive ? "tab active" : "tab")
+              }
+              onClick={
+                isDisabled ? undefined : () => this.selectTabIndex(index)
+              }
+            >
+              {tab.label}
+            </div>
+          );
+        })}
+      </div>
+    );
+
+    const panel = (
+      <div key="panel" className="panels">{data[this.state.activeIndex].content}</div>
+    );
+
     return (
       <div className="Tabs">
-        <div className="tabs">
-          {data.map((tab, index) => {
-            const isActive = index === this.state.activeIndex;
-            return (
-              <div
-                key={index}
-                className={isActive ? "tab active" : "tab"}
-                onClick={() => this.selectTabIndex(index)}
-              >
-                {tab.label}
-              </div>
-            );
-          })}
-        </div>
-        <div className="panels">{data[this.state.activeIndex].content}</div>
+        {this.props.tabsOnBottom ? [panel, tabs] : [tabs, panel]}
       </div>
     );
   }
@@ -59,9 +72,10 @@ class App extends Component {
         content: text.space
       }
     ];
+
     return (
       <div className="App">
-        <Tabs data={tabData} />
+        <Tabs data={tabData} disabledTabs={[2, 3]} tabsOnBottom />
       </div>
     );
   }
