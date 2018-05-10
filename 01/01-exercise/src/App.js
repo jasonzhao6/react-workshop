@@ -4,6 +4,18 @@ import subscribeToMessages from "./messages";
 import FadeIn from "./FadeIn";
 
 class PinScrollToBottom extends Component {
+  componentDidMount() {
+    this.scroll();
+  }
+
+  componentDidUpdate() {
+    this.scroll();
+  }
+
+  scroll() {
+    window.scrollTo(0, document.documentElement.scrollHeight);
+  }
+
   render() {
     return this.props.children;
   }
