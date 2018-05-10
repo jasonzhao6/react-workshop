@@ -13,7 +13,14 @@ class PinScrollToBottom extends Component {
   }
 
   scroll() {
-    window.scrollTo(0, document.documentElement.scrollHeight);
+    if (!this.scrolledUp) {
+      window.scrollTo(0, document.documentElement.scrollHeight);
+    }
+  }
+
+  componentWillUpdate() {
+    const { clientHeight, scrollHeight, scrollTop } = document.documentElement;
+    this.scrolledUp = clientHeight + scrollTop < scrollHeight;
   }
 
   render() {
