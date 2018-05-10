@@ -7,7 +7,7 @@ import { CSSTransitionGroup } from "react-transition-group";
 const withMedia = queries => Comp => {
   const media = createMediaListener(queries);
 
-  return class WithMedia extends React.Component {
+  class WithMedia extends React.Component {
     state = {
       media: media.getState()
     };
@@ -24,6 +24,10 @@ const withMedia = queries => Comp => {
       return <Comp media={this.state.media} />
     }
   }
+
+  WithMedia.displayName = `WithMedia(${(Comp.displayName || Comp.name)})`;
+
+  return WithMedia;
 }
 
 class App extends React.Component {
