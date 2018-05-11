@@ -1,10 +1,12 @@
 import "./index.css";
-import React, { Component } from "react";
+import React, { Component, createContext } from "react";
 import FaAutomobile from "react-icons/lib/fa/automobile";
 import FaBed from "react-icons/lib/fa/bed";
 import FaPlane from "react-icons/lib/fa/plane";
 import FaSpaceShuttle from "react-icons/lib/fa/space-shuttle";
 import * as text from "./text";
+
+const TabContext = createContext();
 
 class Tabs extends Component {
   state = {
@@ -16,26 +18,34 @@ class Tabs extends Component {
   };
 
   render() {
-    const children = React.Children.map(this.props.children, child => {
-      return React.cloneElement(child, {
+    return (
+      <TabContext.Provider value={{
         activeIndex: this.state.activeIndex,
         onSelectTab: this.selectTabIndex
-      });
-    });
-    return <div className="Tabs">{children}</div>;
+      }}>
+        <div className="Tabs">{this.props.children}</div>;
+      </TabContext.Provider>
+    );
   }
 }
 
 class TabList extends Component {
   render() {
-    const { activeIndex } = this.props;
-    const children = React.Children.map(this.props.children, (child, index) => {
-      return React.cloneElement(child, {
-        isActive: index === activeIndex,
-        onSelect: () => this.props.onSelectTab(index)
-      });
-    });
-    return <div className="tabs">{children}</div>;
+    const { children } = this.props;
+    return (
+      <TabContext.Consumer>
+        {(context) => {
+          const { activeIndex, onSelectTab } = context;
+          const clones = React.Children.map(children, (child, index) => {
+            return React.cloneElement(child, {
+              isActive: index === activeIndex,
+              onSelect: () => onSelectTab(index)
+            });
+          });
+          return <div className="tabs">{clones}</div>;
+        }}
+      </TabContext.Consumer>
+    );
   }
 }
 
@@ -57,8 +67,15 @@ class Tab extends Component {
 
 class TabPanels extends Component {
   render() {
-    const { activeIndex, children } = this.props;
-    return <div className="panels">{children[activeIndex]}</div>;
+    const { children } = this.props;
+    return (
+      <TabContext.Consumer>
+        {(context) => {
+          const { activeIndex } = context;
+          return <div className="panels">{children[activeIndex]}</div>;
+        }}
+      </TabContext.Consumer>
+    );
   }
 }
 
@@ -91,26 +108,30 @@ class App extends Component {
     return (
       <div className="App">
         <Tabs>
-          <TabList>
-            <Tab>
-              <FaAutomobile />
-            </Tab>
-            <Tab>
-              <FaBed />
-            </Tab>
-            <Tab>
-              <FaPlane />
-            </Tab>
-            <Tab>
-              <FaSpaceShuttle />
-            </Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>{text.cars}</TabPanel>
-            <TabPanel>{text.hotels}</TabPanel>
-            <TabPanel>{text.flights}</TabPanel>
-            <TabPanel>{text.space}</TabPanel>
-          </TabPanels>
+          <div>
+            <TabList>
+              <Tab>
+                <FaAutomobile />
+              </Tab>
+              <Tab>
+                <FaBed />
+              </Tab>
+              <Tab>
+                <FaPlane />
+              </Tab>
+              <Tab>
+                <FaSpaceShuttle />
+              </Tab>
+            </TabList>
+          </div>
+          <div>
+            <TabPanels>
+              <TabPanel>{text.cars}</TabPanel>
+              <TabPanel>{text.hotels}</TabPanel>
+              <TabPanel>{text.flights}</TabPanel>
+              <TabPanel>{text.space}</TabPanel>
+            </TabPanels>
+          </div>
         </Tabs>
       </div>
     );
