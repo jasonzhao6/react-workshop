@@ -31,6 +31,8 @@ import "./index.css";
 import React from "react";
 import PropTypes from "prop-types";
 
+React.Children.mapWithSideEffects = React.Children.map;
+
 class Select extends React.Component {
   static propTypes = {
     onChange: PropTypes.func,
@@ -38,14 +40,54 @@ class Select extends React.Component {
     defaultValue: PropTypes.any
   };
 
+  state = {
+    isOpen: false,
+    value: this.props.defaultValue
+  }
+
+  isControlled = () => {
+    return this.props.value && this.props.onChange;
+  };
+
+  selectValue = (value) => {
+    if (this.isControlled()) {
+      this.props.onChange(value);
+      this.setState({
+        isOpen: false,
+      });
+    } else {
+      this.setState({
+        isOpen: false,
+        value,
+      });
+    }
+  }
+
   render() {
-    const isOpen = false;
+    let label;
+    const { value } = this.isControlled() ? this.props : this.state;
+
+    const clones =
+      React.Children.mapWithSideEffects(this.props.children, child => {
+
+      if (child.props.value === value) {
+        label = child.props.children;
+      }
+
+      return React.cloneElement(child, {
+        selectValue: () => this.selectValue(child.props.value)
+      });
+    });
+
     return (
       <div className="select">
-        <button className="label">
-          label <span className="arrow">▾</span>
+        <button
+          className="label"
+          onClick={() => this.setState({ isOpen: true })}
+        >
+          {label} <span className="arrow">▾</span>
         </button>
-        {isOpen && <ul className="options">{this.props.children}</ul>}
+        { this.state.isOpen && <ul className="options">{clones}</ul> }
       </div>
     );
   }
@@ -53,18 +95,25 @@ class Select extends React.Component {
 
 class Option extends React.Component {
   render() {
-    return <li className="option">{this.props.children}</li>;
+    return (
+      <li
+        className="option"
+        onClick={this.props.selectValue}
+      >
+        {this.props.children}
+      </li>
+    );
   }
 }
 
 class App extends React.Component {
   state = {
-    selectValue: "dosa"
+    value: "dosa"
   };
 
   setToMintChutney = () => {
     this.setState({
-      selectValue: "mint-chutney"
+      value: "mint-chutney"
     });
   };
 
@@ -87,9 +136,9 @@ class App extends React.Component {
             <button onClick={this.setToMintChutney}>Set to Mint Chutney</button>
           </p>
           <Select
-            value={this.state.selectValue}
-            onChange={selectValue => {
-              this.setState({ selectValue });
+            value={this.state.value}
+            onChange={value => {
+              this.setState({ value });
             }}
           >
             <Option value="tikka-masala">Tikka Masala</Option>
