@@ -16,37 +16,67 @@ class Tabs extends Component {
   };
 
   render() {
-    const { data, disabledTabs } = this.props;
-
-    const tabs = (
-      <div key="tabs" className="tabs">
-        {data.map((tab, index) => {
-          const isActive = index === this.state.activeIndex;
-          const isDisabled = disabledTabs.indexOf(index) >=0 ;
-          return (
-            <div
-              key={index}
-              className={
-                isDisabled ? "tab disabled" : (isActive ? "tab active" : "tab")
-              }
-              onClick={
-                isDisabled ? undefined : () => this.selectTabIndex(index)
-              }
-            >
-              {tab.label}
-            </div>
-          );
-        })}
-      </div>
-    );
-
-    const panel = (
-      <div key="panel" className="panels">{data[this.state.activeIndex].content}</div>
-    );
-
     return (
       <div className="Tabs">
-        {this.props.tabsOnBottom ? [panel, tabs] : [tabs, panel]}
+        {
+          React.Children.map(this.props.children, (child) => {
+            return React.cloneElement(child, {
+              activeIndex: this.state.activeIndex,
+              disabledTabs: this.props.disabledTabs,
+              selectTabIndex: this.selectTabIndex,
+            });
+          })
+        }
+      </div>
+    );
+  }
+}
+
+class TabList extends Component {
+  render() {
+    const { activeIndex, disabledTabs, selectTabIndex } = this.props;
+
+    return (
+      <div className="tabs">
+        {
+          React.Children.map(this.props.children, (child, index) => {
+            return React.cloneElement(child, {
+              isActive: index === activeIndex,
+              isDisabled: disabledTabs.indexOf(index) >= 0,
+              selectTabIndex: () => selectTabIndex(index),
+            });
+          })
+        }
+      </div>
+    );
+  }
+}
+
+class Tab extends Component {
+  render() {
+    const { isActive, isDisabled, selectTabIndex } = this.props;
+
+    return (
+      <div
+        className={
+          isDisabled ? "tab disabled" : (isActive ? "tab active" : "tab")
+        }
+        onClick={
+          isDisabled ? undefined : selectTabIndex
+        }
+      >
+        {this.props.children}
+      </div>
+    );
+  }
+}
+
+class TabPanels extends Component {
+  render() {
+    const { activeIndex, contents } = this.props;
+    return (
+      <div className="panels">
+        {contents[activeIndex]}
       </div>
     );
   }
@@ -75,7 +105,12 @@ class App extends Component {
 
     return (
       <div className="App">
-        <Tabs data={tabData} disabledTabs={[2, 3]} tabsOnBottom />
+        <Tabs data={tabData} disabledTabs={[2, 3]}>
+          <TabList>
+            {tabData.map((tab, index) => <Tab key={index}>{tab.label}</Tab>)}
+          </TabList>
+          <TabPanels contents={tabData.map((tab, index) => tab.content)} />
+        </Tabs>
       </div>
     );
   }
