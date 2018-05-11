@@ -5,7 +5,21 @@ import FaPause from "react-icons/lib/fa/pause";
 import FaForward from "react-icons/lib/fa/forward";
 import FaBackward from "react-icons/lib/fa/backward";
 
+class RadioButton extends Component {
+  render() {
+    const { isActive, onSelect } = this.props;
+    const className = "radio-button " + (isActive ? "active" : "");
+    return (
+      <button className={className} onClick={onSelect}>
+        {this.props.children}
+      </button>
+    );
+  }
+}
+
 class RadioGroup extends Component {
+  static Button = RadioButton;
+
   state = { value: this.props.defaultValue }
 
   render() {
@@ -32,35 +46,23 @@ class RadioGroup extends Component {
   }
 }
 
-class RadioButton extends Component {
-  render() {
-    const { isActive, onSelect } = this.props;
-    const className = "radio-button " + (isActive ? "active" : "");
-    return (
-      <button className={className} onClick={onSelect}>
-        {this.props.children}
-      </button>
-    );
-  }
-}
-
 class App extends Component {
   render() {
     return (
       <div>
         <RadioGroup defaultValue="pause" legend="Radio Group">
-          <RadioButton value="back">
+          <RadioGroup.Button value="back">
             <FaBackward />
-          </RadioButton>
-          <RadioButton value="play">
+          </RadioGroup.Button>
+          <RadioGroup.Button value="play">
             <FaPlay />
-          </RadioButton>
-          <RadioButton value="pause">
+          </RadioGroup.Button>
+          <RadioGroup.Button value="pause">
             <FaPause />
-          </RadioButton>
-          <RadioButton value="forward">
+          </RadioGroup.Button>
+          <RadioGroup.Button value="forward">
             <FaForward />
-          </RadioButton>
+          </RadioGroup.Button>
         </RadioGroup>
       </div>
     );
