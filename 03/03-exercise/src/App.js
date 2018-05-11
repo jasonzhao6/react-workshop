@@ -53,19 +53,36 @@ import FaPlay from "react-icons/lib/fa/play";
 import FaRepeat from "react-icons/lib/fa/repeat";
 import FaRotateLeft from "react-icons/lib/fa/rotate-left";
 
+const AudioContext = React.createContext();
+
 class AudioPlayer extends React.Component {
+  state = {
+    isPlaying: false,
+    play: () => {
+      this.audio.play();
+      this.setState({ isPlaying: true });
+    },
+    pause: () => {
+      this.audio.pause();
+      this.setState({ isPlaying: false });
+    },
+  };
+
+
   render() {
     return (
-      <div className="audio-player">
-        <audio
-          src={null}
-          onTimeUpdate={null}
-          onLoadedData={null}
-          onEnded={null}
-          ref={n => (this.audio = n)}
-        />
-        {this.props.children}
-      </div>
+      <AudioContext.Provider value={this.state}>
+        <div className="audio-player">
+          <audio
+            src={this.props.source}
+            onTimeUpdate={null}
+            onLoadedData={null}
+            onEnded={null}
+            ref={n => (this.audio = n)}
+          />
+          {this.props.children}
+        </div>
+      </AudioContext.Provider>
     );
   }
 }
@@ -73,14 +90,18 @@ class AudioPlayer extends React.Component {
 class Play extends React.Component {
   render() {
     return (
-      <button
-        className="icon-button"
-        onClick={null}
-        disabled={null}
-        title="play"
-      >
-        <FaPlay />
-      </button>
+      <AudioContext.Consumer>
+        {audio => (
+          <button
+            className="icon-button"
+            onClick={audio.play}
+            disabled={audio.isPlaying}
+            title="play"
+          >
+            <FaPlay />
+          </button>
+        )}
+      </AudioContext.Consumer>
     );
   }
 }
@@ -88,21 +109,31 @@ class Play extends React.Component {
 class Pause extends React.Component {
   render() {
     return (
-      <button
-        className="icon-button"
-        onClick={null}
-        disabled={null}
-        title="pause"
-      >
-        <FaPause />
-      </button>
+      <AudioContext.Consumer>
+        {audio => (
+          <button
+            className="icon-button"
+            onClick={audio.pause}
+            disabled={!audio.isPlaying}
+            title="pause"
+          >
+            <FaPause />
+          </button>
+        )}
+      </AudioContext.Consumer>
     );
   }
 }
 
 class PlayPause extends React.Component {
   render() {
-    return null;
+    return (
+      <AudioContext.Consumer>
+        {audio => (
+          audio.isPlaying ? <Pause /> : <Play />
+        )}
+      </AudioContext.Consumer>
+    )
   }
 }
 
