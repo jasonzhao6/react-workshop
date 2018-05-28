@@ -1,0 +1,7 @@
+Agenda:
+
+1. Component constructor
+
+2. Compound components
+
+3. Context API
