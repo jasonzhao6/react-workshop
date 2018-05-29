@@ -17,15 +17,30 @@ class Tabs extends PureComponent {
   // Callback method to select a tab on click.
   selectTab = index => this.setState({ index });
 
-  renderLabels = () => (
+  // Render all tab labels and currently selected content.
+  render = () => (
+    <div className='tabs'>
+      { React.Children.map(this.props.children, (child) => {
+        return React.cloneElement(child, {
+          data: this.props.data,
+          index: this.state.index,
+          selectTab: this.selectTab
+        });
+      }) }
+    </div>
+  );
+}
+
+Tabs.Labels = class TabsLabels extends PureComponent {
+  render = () => (
     <div className='tabsLabels' key='labels'>
       { this.props.data.map((tab, index) => {
-        const isSelected = index === this.state.index;
+        const isSelected = index === this.props.index;
         return (
           <div
             className={ classNames('tabsLabel', { isSelected }) }
             key={ index }
-            onClick={ this.selectTab.bind(null, index) }
+            onClick={ this.props.selectTab.bind(null, index) }
           >
             { tab.label }
           </div>
@@ -33,24 +48,14 @@ class Tabs extends PureComponent {
       }) }
     </div>
   );
+}
 
-  renderContent = () => (
+Tabs.Content = class TabsContent extends PureComponent {
+  render = () => (
     <div className='tabsContent' key='content'>
-      { this.props.data[this.state.index].content }
+      { this.props.data[this.props.index].content }
     </div>
   );
-
-  // Render all tab labels and currently selected content.
-  render() {
-    return (
-      <div className='tabs'>
-        { this.props.showContentBeforeLabels
-          ? [this.renderContent(), this.renderLabels()]
-          : [this.renderLabels(), this.renderContent()]
-        }
-      </div>
-    );
-  }
 }
 
 class App extends PureComponent {
@@ -58,7 +63,10 @@ class App extends PureComponent {
   render() {
     return (
       <div className='App'>
-        <Tabs data={ DATA } showContentBeforeLabels={ true } />
+        <Tabs data={ DATA }>
+          <Tabs.Labels />
+          <Tabs.Content />
+        </Tabs>
       </div>
     );
   }
