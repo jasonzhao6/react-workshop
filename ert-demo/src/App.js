@@ -12,19 +12,10 @@ const DATA = [
 ];
 
 class Tabs extends PureComponent {
-  // Override constructor to init state and bind callbacks.
-  constructor(props) {
-    super(props);
-
-    this.state = { index: 0 };
-
-    this.selectTab = this.selectTab.bind(this);
-  }
+  state = { index: 0 };
 
   // Callback method to select a tab on click.
-  selectTab(index) {
-    this.setState({ index });
-  }
+  selectTab = index => this.setState({ index });
 
   // Render all tab labels and currently selected content.
   render() {
