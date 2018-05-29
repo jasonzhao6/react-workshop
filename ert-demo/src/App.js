@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, createContext } from 'react';
 import classNames from 'classnames';
 import * as icons from 'react-icons/lib/fa';
 import * as texts from './texts';
@@ -11,6 +11,8 @@ const DATA = [
   { label: <icons.FaSpaceShuttle />, content: <texts.Space /> }
 ];
 
+const Context = createContext();
+
 class Tabs extends PureComponent {
   state = { index: 0 };
 
@@ -19,42 +21,50 @@ class Tabs extends PureComponent {
 
   // Render all tab labels and currently selected content.
   render = () => (
-    <div className='tabs'>
-      { React.Children.map(this.props.children, (child) => {
-        return React.cloneElement(child, {
-          data: this.props.data,
-          index: this.state.index,
-          selectTab: this.selectTab
-        });
-      }) }
-    </div>
+    <Context.Provider value={ {
+      data: this.props.data,
+      index: this.state.index,
+      selectTab: this.selectTab
+    } }>
+      <div className='tabs'>
+        { this.props.children }
+      </div>
+    </Context.Provider>
   );
 }
 
 Tabs.Labels = class TabsLabels extends PureComponent {
   render = () => (
-    <div className='tabsLabels' key='labels'>
-      { this.props.data.map((tab, index) => {
-        const isSelected = index === this.props.index;
-        return (
-          <div
-            className={ classNames('tabsLabel', { isSelected }) }
-            key={ index }
-            onClick={ this.props.selectTab.bind(null, index) }
-          >
-            { tab.label }
-          </div>
-        );
-      }) }
-    </div>
+    <Context.Consumer>
+      { (value) => (
+        <div className='tabsLabels' key='labels'>
+          { value.data.map((tab, index) => {
+            const isSelected = index === value.index;
+            return (
+              <div
+                className={ classNames('tabsLabel', { isSelected }) }
+                key={ index }
+                onClick={ value.selectTab.bind(null, index) }
+              >
+                { tab.label }
+              </div>
+            );
+          }) }
+        </div>
+      ) }
+    </Context.Consumer>
   );
 }
 
 Tabs.Content = class TabsContent extends PureComponent {
   render = () => (
-    <div className='tabsContent' key='content'>
-      { this.props.data[this.props.index].content }
-    </div>
+    <Context.Consumer>
+      { (value) => (
+        <div className='tabsContent' key='content'>
+          { value.data[value.index].content }
+        </div>
+      ) }
+    </Context.Consumer>
   );
 }
 
@@ -64,8 +74,10 @@ class App extends PureComponent {
     return (
       <div className='App'>
         <Tabs data={ DATA }>
-          <Tabs.Labels />
-          <Tabs.Content />
+          <div>
+            <Tabs.Labels />
+            <Tabs.Content />
+          </div>
         </Tabs>
       </div>
     );
