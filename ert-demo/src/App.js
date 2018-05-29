@@ -17,28 +17,37 @@ class Tabs extends PureComponent {
   // Callback method to select a tab on click.
   selectTab = index => this.setState({ index });
 
+  renderLabels = () => (
+    <div className='tabsLabels' key='labels'>
+      { this.props.data.map((tab, index) => {
+        const isSelected = index === this.state.index;
+        return (
+          <div
+            className={ classNames('tabsLabel', { isSelected }) }
+            key={ index }
+            onClick={ this.selectTab.bind(null, index) }
+          >
+            { tab.label }
+          </div>
+        );
+      }) }
+    </div>
+  );
+
+  renderContent = () => (
+    <div className='tabsContent' key='content'>
+      { this.props.data[this.state.index].content }
+    </div>
+  );
+
   // Render all tab labels and currently selected content.
   render() {
     return (
       <div className='tabs'>
-        <div className='tabsLabels'>
-          { this.props.data.map((tab, index) => {
-            const isSelected = index === this.state.index;
-            return (
-              <div
-                className={ classNames('tabsLabel', { isSelected }) }
-                key={ index }
-                onClick={ this.selectTab.bind(null, index) }
-              >
-                { tab.label }
-              </div>
-            );
-          }) }
-        </div>
-
-        <div className='tabsContent'>
-          { this.props.data[this.state.index].content }
-        </div>
+        { this.props.showContentBeforeLabels
+          ? [this.renderContent(), this.renderLabels()]
+          : [this.renderLabels(), this.renderContent()]
+        }
       </div>
     );
   }
@@ -49,7 +58,7 @@ class App extends PureComponent {
   render() {
     return (
       <div className='App'>
-        <Tabs data={ DATA } />
+        <Tabs data={ DATA } showContentBeforeLabels={ true } />
       </div>
     );
   }
